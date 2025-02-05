@@ -1,0 +1,246 @@
+CREATE TABLE Adopters (
+ id INT PRIMARY KEY,
+ name VARCHAR(100),
+ contact VARCHAR(20),
+ address VARCHAR(200),
+ history TEXT
+);
+CREATE TABLE Animal (
+ animal_id INT PRIMARY KEY,
+ age INT,
+ gender VARCHAR(10),
+ breed VARCHAR(50),
+ weight DECIMAL(5,2)
+);
+CREATE TABLE Training (
+ name VARCHAR(100) PRIMARY KEY,
+ fee DECIMAL(10,2),
+ duration INT,
+ attendees INT
+);
+CREATE TABLE Volunteer (
+ ID INT PRIMARY KEY,
+ task VARCHAR(100),
+ contact VARCHAR(20),
+ name VARCHAR(50)
+);
+CREATE TABLE Fundraisers (
+ ID INT PRIMARY KEY,
+ name VARCHAR(100),
+ funds_raised DECIMAL(10,2),
+ date DATE
+);
+CREATE TABLE Management (
+ volunteer_id INT PRIMARY KEY,
+ next VARCHAR(100),
+ schedule VARCHAR(200),
+ cost DECIMAL(10,2),
+ date DATE,
+ FOREIGN KEY (volunteer_id) REFERENCES Volunteer(ID)
+);
+CREATE TABLE Doctor (
+ id INT PRIMARY KEY,
+ availability VARCHAR(50),
+ contact VARCHAR(20),
+ name VARCHAR(50),
+ specialisation VARCHAR(50)
+);
+CREATE TABLE Caretaker (
+ caretaker_id INT PRIMARY KEY,
+ role VARCHAR(50),
+ name VARCHAR(50),
+ shift_schedule VARCHAR(100),
+ contact VARCHAR(20)
+);
+CREATE TABLE Donor (
+ id INT PRIMARY KEY,
+ donor_info TEXT,
+ date DATE,
+ breed VARCHAR(50)
+);
+CREATE TABLE HealthRecord (
+ animal_id INT PRIMARY KEY,
+ date DATE,
+ treatment TEXT,
+ vet_info VARCHAR(200),
+ FOREIGN KEY (animal_id) REFERENCES Animal(animal_id)
+);
+ 7. QUERIES
+FIRST 50 QUERIES
+1) Insert Data Queries
+-- Insert an adopter
+INSERT INTO Adopter (Adopter_ID, Name, Contact, Address, History)
+VALUES (1, 'John Doe', '555-1234', '123 Elm Street', 'None');
+-- Insert an animal
+INSERT INTO Animal (Animal_ID, Age, Gender, Breed, Weight)
+VALUES (1, 3, 'Male', 'Labrador', 25.5);
+-- Insert a volunteer
+INSERT INTO Volunteer (Voluntee
+
+1) Insert Data Queries
+-- Insert an adopter
+INSERT INTO Adopter (Adopter_ID, Name, Contact, Address, History)
+VALUES (1, 'John Doe', '555-1234', '123 Elm Street', 'None');
+-- Insert an animal
+INSERT INTO Animal (Animal_ID, Age, Gender, Breed, Weight)
+VALUES (1, 3, 'Male', 'Labrador', 25.5);
+-- Insert a volunteer
+INSERT INTO Volunteer (Volunteer_ID, Task, Volunteer_Name, Contact)
+VALUES (1, 'Feeding', 'Alice Brown', '555-9876');
+-- Insert a health record
+INSERT INTO Health_Record (Animal_ID, Date, Treatment, Vet_Info)
+VALUES (1, '2024-09-01', 'Vaccination', 'Dr. Smith');
+-- Insert a doctor
+INSERT INTO Doctor (Doctor_ID, Doctor_Name, Availability, Contact, Specialisation)
+VALUES (1, 'Dr. Smith', 'Monday-Friday', '555-3456', 'Veterinary Surgery');
+-- Insert a fundraiser
+INSERT INTO Fundraisers (Fundraiser_ID, Name, Funds_Raised, Date)
+VALUES (1, 'Walkathon', 1000, '2024-08-15');
+-- Insert a donor
+INSERT INTO Donor (Donor_ID, Donor_Info, Date, Dog_Breed)
+VALUES (1, 'John Doe', '2024-07-20', 'Beagle');
+-- Insert a care taker
+INSERT INTO Care_Taker (Care_Taker_ID, Name, Role, Contact, ShiftWork_Schedule)
+VALUES (1, 'Susan Green', 'Kennel Supervisor', '555-4321', 'Night Shift');
+-- Insert management data
+INSERT INTO Management (Volunteer_ID, Date, Cost, Next_Schedule)
+VALUES (1, '2024-09-02', 150, '2024-09-09');
+
+2) Select Queries
+-- Get all adopters
+SELECT * FROM Adopter;
+-- Get all animals
+SELECT * FROM Animal;
+-- Get all volunteers
+SELECT * FROM Volunteer;
+-- Get all health records for a specific animal
+SELECT * FROM Health_Record WHERE Animal_ID = 1;
+-- Get all doctors available on weekdays
+SELECT * FROM Doctor WHERE Availability LIKE '%Monday-Friday%';
+-- Get all fundraisers held in the last 6 months
+SELECT * FROM Fundraisers WHERE Date > (CURRENT_DATE - INTERVAL 6 MONTH);
+-- Get all donations for Beagle breed dogs
+SELECT * FROM Donor WHERE Dog_Breed = 'Beagle';
+-- Get all caretakers working night shifts
+SELECT * FROM Care_Taker WHERE ShiftWork_Schedule LIKE '%Night Shift%';
+-- Get all management records for a volunteer
+SELECT * FROM Management WHERE Volunteer_ID = 1;
+-- Get all animals adopted by a specific adopter
+SELECT a.*
+FROM Animal a
+JOIN Adopter ad ON a.Animal_ID = ad.Adopter_ID
+WHERE ad.Adopter_ID = 1;
+
+3) Update Queries
+-- Update an adopter's contact info
+UPDATE Adopter
+SET Contact = '555-5678'
+WHERE Adopter_ID = 1;
+-- Update an animal's weight
+UPDATE Animal
+SET Weight = 30
+WHERE Animal_ID = 1;
+-- Update a volunteer's task
+UPDATE Volunteer
+SET Task = 'Walking'
+WHERE Volunteer_ID = 1;
+-- Update the next schedule for a volunteer in management
+UPDATE Management
+SET Next_Schedule = '2024-09-16'
+WHERE Volunteer_ID = 1;
+-- Update doctor's availability
+UPDATE Doctor
+SET Availability = 'Tuesday-Thursday'
+WHERE Doctor_ID = 1;
+-- Update funds raised for a specific fundraiser
+UPDATE Fundraisers
+SET Funds_Raised = 1200
+WHERE Fundraiser_ID = 1;
+-- Update donor information
+UPDATE Donor
+SET Donor_Info = 'John A. Doe'
+WHERE Donor_ID = 1;
+-- Update care taker's shift schedule
+UPDATE Care_Taker
+SET ShiftWork_Schedule = 'Day Shift'
+WHERE Care_Taker_ID = 1;
+-- Update the treatment record for a specific health entry
+UPDATE Health_Record
+SET Treatment = 'Deworming'
+WHERE Animal_ID = 1 AND Date = '2024-09-01';
+
+4) Delete Queries
+-- Delete an adopter by ID
+DELETE FROM Adopter WHERE Adopter_ID = 1;
+-- Delete an animal by ID
+DELETE FROM Animal WHERE Animal_ID = 1;
+-- Delete a volunteer by ID
+DELETE FROM Volunteer WHERE Volunteer_ID = 1;
+-- Delete a health record by ID and date
+DELETE FROM Health_Record WHERE Animal_ID = 1 AND Date = '2024-09-01';
+-- Delete a doctor by ID
+DELETE FROM Doctor WHERE Doctor_ID = 1;
+-- Delete a fundraiser by ID
+DELETE FROM Fundraisers WHERE Fundraiser_ID = 1;
+-- Delete a donor by ID
+DELETE FROM Donor WHERE Donor_ID = 1;
+-- Delete a care taker by ID
+DELETE FROM Care_Taker WHERE Care_Taker_ID = 1;
+-- Delete management record by volunteer ID and date
+DELETE FROM Management WHERE Volunteer_ID = 1 AND Date = '2024-09-02';
+
+5) Aggregate Queries
+-- Count total number of adopters
+SELECT COUNT(*) FROM Adopter;
+-- Count total number of animals
+SELECT COUNT(*) FROM Animal;
+-- Count total number of volunteers
+SELECT COUNT(*) FROM Volunteer;
+-- Get total funds raised from all fundraisers
+SELECT SUM(Funds_Raised) AS Total_Funds FROM Fundraisers;
+-- Get the average age of animals
+SELECT AVG(Age) AS Average_Age FROM Animal;
+-- Get the maximum weight of an animal
+SELECT MAX(Weight) AS Max_Weight FROM Animal;
+-- Count total number of care takers working in night shifts
+SELECT COUNT(*) FROM Care_Taker WHERE ShiftWork_Schedule LIKE '%Night Shift%';
+-- Count total number of health records for a specific animal
+SELECT COUNT(*) FROM Health_Record WHERE Animal_ID = 1;
+-- Get the total cost of management operations
+SELECT SUM(Cost) AS Total_Cost FROM Management;
+
+6) Advanced Queries
+-- Get all animals with their health records
+SELECT a.Animal_ID, a.Breed, hr.Treatment, hr.Date
+FROM Animal a
+LEFT JOIN Health_Record hr ON a.Animal_ID = hr.Animal_ID;
+-- Get all volunteers who have tasks involving 'Feeding'
+SELECT Volunteer_Name FROM Volunteer WHERE Task = 'Feeding';
+-- Get all fundraisers along with the donor information if any
+SELECT f.Fundraiser_ID, f.Name, f.Funds_Raised, d.Donor_Info
+FROM Fundraisers f
+LEFT JOIN Donor d ON f.Fundraiser_ID = d.Donor_ID;
+-- Get all animals treated by a specific doctor
+SELECT a.Animal_ID, a.Breed
+FROM Animal a
+JOIN Health_Record hr ON a.Animal_ID = hr.Animal_ID
+JOIN Doctor d ON hr.Vet_Info = d.Doctor_Name
+WHERE d.Doctor_Name = 'Dr. Smith';
+-- Get the total funds raised by each fundraiser
+SELECT Name, SUM(Funds_Raised) AS Total_Funds
+FROM Fundraisers
+GROUP BY Name;
+-- List all animals and their adopters
+SELECT a.Animal_ID, a.Breed, ad.Name
+FROM Animal a
+JOIN Adopter ad ON a.Animal_ID = ad.Adopter_ID;
+-- List all volunteers who have worked on management tasks costing more than $100
+SELECT v.Volunteer_Name
+FROM Volunteer v
+JOIN Management m ON v.Volunteer_ID = m.Volunteer_ID
+WHERE m.Cost > 100;
+-- Find all adopters who have adopted dogs of a specific breed
+SELECT ad.Name, ad.Contact
+FROM Adopter ad
+JOIN Animal a ON ad.Adopter_ID = a.Animal_ID
+WHERE a.Breed = 'Labrador';
