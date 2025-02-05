@@ -117,3 +117,340 @@ Doctor-
  </table>
 </body>
 </html>
+
+Health Record-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>Health Records</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+ <nav>
+ <div class="nav-left">
+ <a href="/">Home</a>
+ <a href="/animals">Animals</a>
+ <a href="/volunteers">Volunteers</a>
+ <a href="/doctors">Doctors</a>
+ </div>
+ <div class="nav-right">
+ <a href="/add_animal_page">Add Animal</a>
+ </div>
+ </nav>
+ <h2 style="text-align: center;">Health Records</h2>
+ <form action="{{ url_for('health_records') }}" method="POST">
+ <label for="search_id">Search by Animal ID:</label>
+ <input type="text" id="search_id" name="search_id" required>
+ <button type="submit">Search</button>
+ </form>
+ <table>
+ <tr>
+ <th>Animal ID</th>
+ <th>Date</th>
+ <th>Treatment</th>
+
+74
+ <th>Vet Info</th>
+ </tr>
+ {% for record in records %}
+ <tr>
+ <td>{{ record.animal_id }}</td>
+ <td>{{ record.date }}</td>
+ <td>{{ record.treatment }}</td>
+ <td>{{ record.vet_info }}</td>
+ </tr>
+ {% endfor %}
+ </table>
+</body>
+</html>
+Index-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>Animal Shelter Management</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+ <nav>
+ <div class="nav-left">
+ <a href="/animals">Animals</a>
+ <a href="/volunteers">Volunteers</a>
+ <a href="/doctors">Doctors</a>
+ <a href="/health_records">Health Records</a>
+ </div>
+75
+ <div class="nav-right">
+ <a href="/add_animal_page">Add Animal</a>
+ </div>
+ </nav>
+ <div class="container">
+ <button class="btn" onclick="window.location.href= '/animals'">Animals</button>
+ <button class="btn" onclick="window.location.href= '/volunteers'">Volunteers</button>
+ <button class="btn" onclick="window.location.href= '/doctors'">Doctors</button>
+ <button class="btn" onclick="window.location.href= '/health_records'">Health Records</button>
+ </div>
+</body>
+</html>
+Volunteers-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <title>Volunteers</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+ <nav>
+ <div class="nav-left">
+ <a href="/">Home</a>
+ <a href="/animals">Animals</a>
+ <a href="/doctors">Doctors</a>
+ <a href="/health_records">Health Records</a>
+ </div>
+ <div class="nav-right">
+
+76
+ <a href="/add_animal_page">Add Animal</a>
+ </div>
+ </nav>
+ <h2 style="text-align: center;">Volunteers</h2>
+ <table>
+ <tr>
+ <th>Volunteer ID</th>
+ <th>Task</th>
+ <th>Contact</th>
+ <th>Name</th>
+ </tr>
+ {% for volunteer in volunteers %}
+ <tr>
+ <td>{{ volunteer.volunteer_id }}</td>
+ <td>{{ volunteer.task }}</td>
+ <td>{{ volunteer.contact }}</td>
+ <td>{{ volunteer.name }}</td>
+ </tr>
+ {% endfor %}
+ </table>
+</body>
+</html>
+App.pyfrom flask import Flask, render_template, redirect, url_for, request
+import mysql.connector
+from mysql.connector import Error # Import the Error class for handling exceptions
+app = Flask(_name_)
+app.config['SECRET_KEY'] = '@Bunny455'
+# Connect to MySQL database
+def get_db_connection():
+
+77
+ try:
+
+ connection = mysql.connector.connect(
+ host='localhost',
+ user='root',
+ port=3306,
+ password='kellen',
+ database='animal_shelter_management_system'
+ )
+ if connection.is_connected():
+ print("Connection to MySQL DB successful")
+ return connection
+ except Error as e:
+ print(f"Error: {e}")
+ return None
+@app.route('/')
+def index():
+ return render_template("index.html")
+# Route to display animals
+@app.route('/animals')
+def animals():
+ conn = get_db_connection()
+ if conn is None:
+ print("Not Connected to MySQL DB")
+ return "Database connection error"
+ cursor = conn.cursor(dictionary=True)
+ cursor.execute("SELECT * FROM Animal")
+ animals = cursor.fetchall()
+ cursor.close()
+ conn.close()
+ return render_template("animals.html", animals=animals)
+78
+# Route to display add animal form
+@app.route('/add_animal_page')
+def add_animal_page():
+ return render_template("add_animal.html")
+# Add new animal to the database
+@app.route('/add_animal', methods=['POST'])
+def add_animal():
+ conn = get_db_connection()
+ if conn is None:
+ print("Not Connected to MySQL DB")
+ return "Database connection error"
+ animal_data = (
+ request.form['animal_id'],
+ request.form['age'],
+ request.form['gender'],
+ request.form['breed'],
+ request.form['weight']
+ )
+ cursor = conn.cursor()
+ cursor.execute("INSERT INTO Animal (animal_id, age, gender, breed, weight) VALUES (%s, %s, %s, %s,
+%s)", animal_data)
+ conn.commit()
+ cursor.close()
+ conn.close()
+ return redirect(url_for('add_animal_page')) # Redirect back to the add animal page after submission
+# Route to display health records with optional search by animal_id
+@app.route('/health_records', methods=['GET', 'POST'])
+def health_records():
+ conn = get_db_connection()
+ if conn is None:
+ print("Not Connected to MySQL DB")
+
+79
+ return "Database connection error"
+ cursor = conn.cursor(dictionary=True)
+ if request.method == 'POST':
+ search_id = request.form.get('search_id')
+ cursor.execute("SELECT animal_id, date, treatment, vet_info FROM HealthRecord WHERE animal_id =
+%s", (search_id,))
+ else:
+ cursor.execute("SELECT animal_id, date, treatment, vet_info FROM HealthRecord")
+ records = cursor.fetchall()
+ cursor.close()
+ conn.close()
+ return render_template("health_records.html", records=records)
+# Route to display doctors
+@app.route('/doctors')
+def doctors():
+ conn = get_db_connection()
+ if conn is None:
+ print("Not Connected to MySQL DB")
+ return "Database connection error"
+ cursor = conn.cursor(dictionary=True)
+ cursor.execute("SELECT * FROM Doctor")
+ doctors = cursor.fetchall()
+ cursor.close()
+ conn.close()
+ return render_template("doctors.html", doctors=doctors)
+# Route to display volunteers
+@app.route('/volunteers')
+def volunteers():
+ conn = get_db_connection()
+ if conn is None:
+
+80
+ print("Not Connected to MySQL DB")
+ return "Database connection error"
+ cursor = conn.cursor(dictionary=True)
+ cursor.execute("SELECT * FROM Volunteer")
+ volunteers = cursor.fetchall()
+ cursor.close()
+ conn.close()
+ return render_template("volunteers.html", volunteers=volunteers)
+if _name_ == "_main_":
+ app.run(debug=True)
+style.cssbody {
+ margin: 0;
+ font-family: Arial, sans-serif;
+ height: 100vh;
+ background-image: url('/static/bg.jpg');
+ background-size: cover;
+ background-position: center center;
+ background-repeat: no-repeat;
+ overflow: hidden;
+}
+nav {
+ background-color: rgba(0, 0, 0, 0.8);
+ padding: 1rem;
+ display: flex;
+ align-items: center;
+ /* Align items vertically */
+ justify-content: space-between;
+ /* Space between left and right blocks */
+81
+}
+nav a {
+ color: white;
+ margin: 0 15px;
+ text-decoration: none;
+ font-size: 1.2rem;
+}
+.nav-left,
+.nav-right {
+ display: flex;
+ /* Display links in a row */
+}
+.nav-left a,
+.nav-right a {
+ color: white;
+ margin-left: 20px;
+ text-decoration: none;
+ font-size: 1rem;
+}
+nav a:hover {
+ color: rgb(255, 107, 107);
+}
+.container {
+ width: 100%;
+ max-width: 400px;
+ margin: 40px auto;
+ padding: 20px;
+ background: white;
+ box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+82
+ align-items: center;
+}
+.container a:hover {
+ color: rgb(1, 1, 1);
+}
+.container_center {
+ position: relative;
+ height: 100vh;
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+}
+input {
+ width: 95%;
+ padding: 10px;
+ margin: 10px 0;
+ border: 1px solid #ccc;
+ border-radius: 5px;
+}
+table {
+ margin: 20px auto;
+ width: 80%;
+ background-color: #f9f9f9;
+ border-collapse: collapse;
+ border: 2px solid #333;
+ /* Border around the table */
+}
+th,
+td {
+83
+ border: 1px solid #666;
+ /* Border around table cells */
+ padding: 8px;
+ text-align: center;
+}
+th {
+ background-color: #f2f2f2;
+}
+tr:nth-child(even) {
+ background-color: #f9f9f9;
+}
+button {
+ width: 100%;
+ margin: 5px;
+ padding: 10px;
+ background-color: #ff6b6b;
+ color: white;
+ border: none;
+ border-radius: 5px;
+ cursor: pointer;
+}
+button:hover {
+ background-color: #333;
+}
